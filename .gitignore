@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Archivos de entorno (no subir al repositorio)
+env.ps1
+env.sh
