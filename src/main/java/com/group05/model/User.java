@@ -1,4 +1,4 @@
-package com.group05.model.entity;
+package com.group05.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -42,4 +42,11 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
+
+    @PrePersist
+    public void prePersist() {
+        this.signUpDate = LocalDate.now();
+        this.totalSpent = 0.0;
+    }
+
 }
