@@ -11,13 +11,13 @@ import com.group05.service.use_cases.RoleUseCase;
 
 
 @Service
-public class RoleService implements RoleUseCase {
+public class RoleServiceImpl implements RoleUseCase {
 
     private RoleMapper roleMapper;
 
     private RoleRepository roleRepository;
 
-    public RoleService(RoleMapper roleMapper, RoleRepository roleRepository){
+    public RoleServiceImpl(RoleMapper roleMapper, RoleRepository roleRepository){
         this.roleMapper = roleMapper;
         this.roleRepository = roleRepository;
     }
