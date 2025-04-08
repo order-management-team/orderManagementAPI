@@ -13,7 +13,7 @@ import com.group05.repository.UserRepository;
 import com.group05.service.use_cases.UserUseCase;
 
 @Service
-public class UserService implements UserUseCase{
+public class UserServiceImpl implements UserUseCase{
     private UserMapper userMapper;
     
     private UserRepository userRepository;
@@ -22,7 +22,7 @@ public class UserService implements UserUseCase{
 
     private PasswordEncoder passwordEncoder;
 
-    public UserService(UserMapper userMapper, UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder){
+    public UserServiceImpl(UserMapper userMapper, UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder){
         this.userMapper = userMapper;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;

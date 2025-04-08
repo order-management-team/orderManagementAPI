@@ -9,20 +9,21 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.group05.dto.UserRequestDTO;
 import com.group05.dto.UserResponseDTO;
-import com.group05.service.UserService;
+import com.group05.service.UserServiceImpl;
+import com.group05.service.use_cases.UserUseCase;
 
 @RestController
-@RequestMapping("api/v1/users")
+@RequestMapping("/users")
 public class UserController {
 
-    private UserService userService;
+    private UserUseCase userUseCase;
 
-    public UserController(UserService userService){
-        this.userService = userService;
+    public UserController(UserServiceImpl userService){
+        this.userUseCase = userService;
     }
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO userRequestDTO){
-        return new ResponseEntity<>(userService.createUser(userRequestDTO), HttpStatus.CREATED);
+        return new ResponseEntity<>(userUseCase.createUser(userRequestDTO), HttpStatus.CREATED);
     }
 }
