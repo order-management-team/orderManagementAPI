@@ -41,10 +41,11 @@ public class SecurityConfig {
                 .sessionManagement(session -> 
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .authorizeHttpRequests(http -> {
-                        http.requestMatchers(HttpMethod.POST, "/auth/login").permitAll();
-                        http.anyRequest().authenticated();
-                }
+                .authorizeHttpRequests(http -> http
+                            .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                            .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()                  
+                            .anyRequest().authenticated()
+                
                 )
                 .addFilterBefore(new JwtRequestFilter(jwtUtils),  UsernamePasswordAuthenticationFilter.class)
                 .build();
