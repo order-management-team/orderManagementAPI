@@ -1,6 +1,7 @@
 package com.group05.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
@@ -10,6 +11,7 @@ public class RoleRequestDTO {
     @Schema(description = "ID del rol (usado para actualizaciones)", example = "1")
     private Long id;
 
+    @NotBlank(message = "El nombre del rol no puede estar vacío")
     @Schema(description = "Nombre del rol (único)", example = "ADMIN", required = true)
     private String name;
 

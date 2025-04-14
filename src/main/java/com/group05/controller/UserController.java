@@ -34,9 +34,8 @@ public class UserController {
         method = "POST", 
         summary = "Registrar usuarios", 
         description = "Servicio encargado de registar usuarios",
-        tags = {"Register"},
         requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "",
+            description = "Datos requeridos para registrar un usuario en el sistema",
             required = true,
             content = @Content(
                 mediaType = "application/json",
