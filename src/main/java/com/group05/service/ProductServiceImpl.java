@@ -20,10 +20,10 @@ import com.group05.dto.PaginationResponseDTO;
 import com.group05.dto.ProductListResponseDTO;
 import com.group05.dto.ProductRequestDTO;
 import com.group05.dto.ProductResponseDTO;
+import com.group05.dto.ProductTaxResponseDTO;
 import com.group05.exceptionHandler.exceptions.ResourceNotFoundException;
 import com.group05.mapper.ProductListMapper;
 import com.group05.mapper.ProductMapper;
-import com.group05.mapper.ProductTaxMapper;
 import com.group05.model.Product;
 import com.group05.model.ProductPrice;
 import com.group05.model.ProductTax;
@@ -43,18 +43,16 @@ public class ProductServiceImpl implements ProductUseCase {
     private ProductListMapper productListMapper;
     private ProductPriceUseCase productPriceUseCase;
     private TaxRepository taxRepository;
-    private ProductTaxMapper productTaxMapper;
     private ProductTaxRepository productTaxRepository;
 
     public ProductServiceImpl(ProductRepository productRepository, ProductMapper productMapper, 
     ProductPriceUseCase productPriceUseCase, TaxRepository taxRepository,
-    ProductListMapper productListMapper, ProductTaxMapper productTaxMapper, ProductTaxRepository productTaxRepository) {
+    ProductListMapper productListMapper, ProductTaxRepository productTaxRepository) {
         this.productRepository = productRepository;
         this.productMapper = productMapper;
         this.productPriceUseCase = productPriceUseCase;
         this.taxRepository = taxRepository;
         this.productListMapper = productListMapper;
-        this.productTaxMapper = productTaxMapper;
         this.productTaxRepository = productTaxRepository;
     }
 
@@ -100,6 +98,21 @@ public class ProductServiceImpl implements ProductUseCase {
         ProductResponseDTO response = productMapper.toDto(product);
         response.setPrice(productPriceUseCase.getCurrentPrice(product)); 
         
+        List<ProductTaxResponseDTO> taxDtos = product.getProductTaxes().stream()
+        .filter(pt -> RecordStateConstants.ACTIVE.equals(pt.getFlgState()))
+        .map(pt -> {
+            ProductTaxResponseDTO dto = new ProductTaxResponseDTO();
+            dto.setId(pt.getId());
+            if (pt.getTax() != null) {
+                dto.setTaxId(pt.getTax().getId());
+                dto.setName(pt.getTax().getName());
+                dto.setRate(pt.getTax().getRate());
+            }
+            return dto;
+        }).toList();
+
+        response.setProductTaxes(taxDtos);
+
         return response;
     }
 
@@ -134,6 +147,18 @@ public class ProductServiceImpl implements ProductUseCase {
 
         ProductResponseDTO response = productMapper.toDto(saved);
         response.setPrice(productPriceUseCase.getCurrentPrice(saved));
+
+         List<ProductTaxResponseDTO> taxDtos = saved.getProductTaxes().stream()
+        .map(pt -> {
+            ProductTaxResponseDTO dto = new ProductTaxResponseDTO();
+            dto.setId(pt.getId());
+            dto.setTaxId(pt.getTax().getId());
+            dto.setName(pt.getTax().getName());
+            dto.setRate(pt.getTax().getRate());
+            return dto;
+        }).toList();
+
+        response.setProductTaxes(taxDtos);
 
         return response;
     }
@@ -215,7 +240,17 @@ public class ProductServiceImpl implements ProductUseCase {
         // Solo impuestos activos en la respuesta
         List<ProductTax> activeTaxes = productTaxRepository
             .findByProductIdAndFlgState(saved.getId(), RecordStateConstants.ACTIVE);
-        response.setProductTaxes(activeTaxes.stream().map(productTaxMapper::toDto).toList());
+        
+        response.setProductTaxes(
+            activeTaxes.stream().map(pt -> {
+                ProductTaxResponseDTO dto = new ProductTaxResponseDTO();
+                dto.setId(pt.getId()); 
+                dto.setTaxId(pt.getTax().getId());
+                dto.setName(pt.getTax().getName());
+                dto.setRate(pt.getTax().getRate());
+                return dto;
+            }).toList()
+        );
 
         return response;
     }

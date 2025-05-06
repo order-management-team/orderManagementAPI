@@ -268,11 +268,39 @@ public class OrderServiceImpl implements OrderUseCase {
         BigDecimal currentSpent = user.getTotalSpent() != null ? user.getTotalSpent() : BigDecimal.ZERO;
         user.setTotalSpent(currentSpent.subtract(previousTotal).add(newTotal));
 
-        // Guardar
         Order savedOrder = orderRepository.save(existingOrder);
 
-        // Devolver DTO
-        return orderMapper.toDto(savedOrder);
+        // Mapear manualmente el DTO enriquecido
+        OrderResponseDTO responseDTO = new OrderResponseDTO();
+        responseDTO.setId(savedOrder.getId());
+        responseDTO.setDate(savedOrder.getDate());
+        responseDTO.setTotalAmount(savedOrder.getTotalAmount());
+
+        responseDTO.setUserId(user.getId());
+        responseDTO.setUserName(user.getName());
+        responseDTO.setUserEmail(user.getEmail());
+
+        OrderState stateSaved = savedOrder.getState();
+        responseDTO.setState(new OrderStateResponseDTO(stateSaved.getId(), stateSaved.getName()));
+
+        // Mapear ítems manualmente
+        List<OrderItemResponseDTO> itemDTOs = savedOrder.getItems().stream()
+            .filter(item -> RecordStateConstants.ACTIVE.equals(item.getFlgState()))
+            .map(item -> {
+                OrderItemResponseDTO dto = new OrderItemResponseDTO();
+                dto.setId(item.getId());
+                dto.setProductId(item.getProduct().getId());
+                dto.setProductName(item.getProduct().getName());
+                dto.setQuantity(item.getQuantity());
+                dto.setUnitPrice(item.getProductPrice().getPrice());
+                dto.setSubtotal(item.getSubtotal());
+                return dto;
+            })
+            .toList();
+
+        responseDTO.setItems(itemDTOs);
+
+        return responseDTO;
     }
 
 
@@ -308,15 +336,21 @@ public class OrderServiceImpl implements OrderUseCase {
 
         OrderResponseDTO responseDTO = orderMapper.toDto(order);
 
-        List<OrderItemResponseDTO> itemsWithPriceDTO = order.getItems().stream()
+        responseDTO.setUserId(order.getUser().getId());
+        responseDTO.setUserName(order.getUser().getName());
+        responseDTO.setUserEmail(order.getUser().getEmail());
+
+        List<OrderItemResponseDTO> itemsWithProductDTO = order.getItems().stream()
             .map(item -> {
                 OrderItemResponseDTO dto = orderItemMapper.toDto(item);
+                dto.setProductId(item.getProduct().getId());
+                dto.setProductName(item.getProduct().getName());
                 dto.setUnitPrice(item.getProductPrice().getPrice()); 
                 return dto;
             })
             .toList();
 
-        responseDTO.setItems(itemsWithPriceDTO);
+        responseDTO.setItems(itemsWithProductDTO);
 
         return responseDTO;
     }
