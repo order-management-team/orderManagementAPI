@@ -11,9 +11,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "DTO utilizado para devolver información de un producto registrado en el sistema.")
-public class ProductResponseDTO {
-
+@Schema(description = "DTO utilizado para devolver información básica de un producto para el listado principal.")
+public class ProductListResponseDTO {
     @Schema(description = "ID único del producto", example = "1")
     private Long id;
 
@@ -28,7 +27,4 @@ public class ProductResponseDTO {
 
     @Schema(description = "Descripción del producto", example = "Teclado mecánico con retroiluminación RGB")
     private String description;
-
-    @Schema(description = "Lista de impuestos aplicados al producto.")
-    private List<ProductTaxResponseDTO> productTaxes;
 }

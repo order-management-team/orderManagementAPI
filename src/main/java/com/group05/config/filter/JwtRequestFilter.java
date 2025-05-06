@@ -19,24 +19,25 @@ import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     private JwtUtils jwtUtils;
 
-    public JwtRequestFilter(JwtUtils jwtUtils){
+    public JwtRequestFilter(JwtUtils jwtUtils) {
         this.jwtUtils = jwtUtils;
     }
 
     @Override
-    protected void doFilterInternal( @Nonnull HttpServletRequest request, 
-                                     @Nonnull HttpServletResponse response, 
-                                     @Nonnull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@Nonnull HttpServletRequest request,
+            @Nonnull HttpServletResponse response,
+            @Nonnull FilterChain filterChain) throws ServletException, IOException {
 
         String jwtToken = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        if(jwtToken != null){
+        if (jwtToken != null) {
             jwtToken = jwtToken.substring(7);
 
             DecodedJWT decodedJWT = jwtUtils.validateToken(jwtToken);
@@ -44,14 +45,28 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             String username = jwtUtils.extractUsername(decodedJWT);
             String stringAuthorities = jwtUtils.getSpecificClaim(decodedJWT, "authorities").asString();
 
-            Collection<? extends GrantedAuthority> authorities = AuthorityUtils.commaSeparatedStringToAuthorityList(stringAuthorities); 
+            Collection<? extends GrantedAuthority> authorities = AuthorityUtils
+                    .commaSeparatedStringToAuthorityList(stringAuthorities);
 
             SecurityContext context = SecurityContextHolder.getContext();
-            
+
             Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, authorities);
             context.setAuthentication(authentication);
 
             SecurityContextHolder.setContext(context);
+
+            HttpServletRequest wrappedRequest = new HttpServletRequestWrapper(request) {
+                @Override
+                public String getHeader(String name) {
+                    if ("X-User-Email".equalsIgnoreCase(name)) {
+                        return username;
+                    }
+                    return super.getHeader(name);
+                }
+            };
+
+            filterChain.doFilter(wrappedRequest, response); 
+            return;
         }
 
         filterChain.doFilter(request, response);

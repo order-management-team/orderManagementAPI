@@ -1,19 +1,23 @@
 package com.group05.model;
 
+import com.group05.audit.ModelAudit;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Getter
+@Setter
 @Table(name = "roles", schema = "order_mgmt")
-@Schema(description = "Entidad que representa un rol asignado a un usuario dentro del sistema")
-public class Role {
+@Schema(name = "Role", description = "Entidad que representa un rol asignado a un usuario dentro del sistema")
+public class Role extends ModelAudit {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

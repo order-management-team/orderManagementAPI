@@ -2,9 +2,13 @@ package com.group05.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Schema(description = "DTO utilizado para crear o actualizar roles en el sistema")
 public class RoleRequestDTO {
 
