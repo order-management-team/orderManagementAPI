@@ -11,8 +11,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.group05.dto.PaginationResponseDTO;
+import com.group05.dto.ProductListResponseDTO;
 import com.group05.dto.ProductRequestDTO;
 import com.group05.dto.ProductResponseDTO;
 import com.group05.exceptionHandler.ErrorDetails;
@@ -56,8 +59,10 @@ public class ProductController {
             )
         )
     })
-    public ResponseEntity<List<ProductResponseDTO>> getProducts(){
-        return ResponseEntity.ok(productUseCase.getProducts());
+    public ResponseEntity<PaginationResponseDTO<List<ProductListResponseDTO>>> getProducts(
+            @Parameter(description = "Filtro de pagina") @RequestParam(value = "page", defaultValue = "0") Long pageNumber,
+            @Parameter(description = "Filtro de cantidad") @RequestParam(value = "size", defaultValue = "10") Long pageSize){
+        return ResponseEntity.ok(productUseCase.getProducts(pageNumber, pageSize));
     }
 
     @GetMapping("/{id}")

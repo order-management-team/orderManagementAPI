@@ -2,23 +2,27 @@ package com.group05.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import jakarta.validation.constraints.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.group05.audit.ModelAudit;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Getter
+@Setter
 @Table(name = "users", schema="order_mgmt")
-@Schema(name="users", description = "Entidad que representa a un usuario del sistema")
-public class User {
+@Schema(name="User", description = "Entidad que representa a un usuario del sistema")
+public class User extends ModelAudit{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,22 +48,22 @@ public class User {
     private String password;
 
     @JsonFormat(pattern = "dd/MM/yyyy")
-    @Schema(description = "Fecha de registro del usuario", example = "08-04-2025")
+    @Schema(description = "Fecha de registro del usuario", example = "08/04/2025")
     private LocalDate signUpDate;
 
     @Schema(description = "Monto total gastado por el usuario", example = "105.50")
-    private Double totalSpent;
+    private BigDecimal totalSpent;
 
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
     @NotNull(message = "El rol es obligatorio")
-    @Schema(description = "Rol asignado al usuario")
+    @Schema(description = "Rol asignado al usuario", example = "1")
     private Role role;
 
     @PrePersist
     public void prePersist() {
         this.signUpDate = LocalDate.now();
-        this.totalSpent = 0.0;
+        this.totalSpent = BigDecimal.ZERO;
     }
 
 }
