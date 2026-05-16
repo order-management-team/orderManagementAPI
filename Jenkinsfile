@@ -14,6 +14,7 @@ pipeline {
                 script {
                     env.REPO_NAME = "${env.GIT_URL.split('/').last().split('\\.').first()}"
                     env.IMAGE_NAME = env.REPO_NAME.toLowerCase()
+
                     echo "Repositorio detectado: ${env.REPO_NAME}"
                     echo "Nombre de imagen Docker: ${env.IMAGE_NAME}"
                 }
@@ -70,6 +71,30 @@ pipeline {
                 sh """
                     docker build -t ${env.IMAGE_NAME}:latest .
                 """
+            }
+        }
+
+        stage('Publish Docker Image') {
+            agent any
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKERHUB_USERNAME',
+                        passwordVariable: 'DOCKERHUB_TOKEN'
+                    )
+                ]) {
+                    sh """
+                        echo "\$DOCKERHUB_TOKEN" | docker login -u "\$DOCKERHUB_USERNAME" --password-stdin
+
+                        docker tag ${env.IMAGE_NAME}:latest \
+                        \$DOCKERHUB_USERNAME/${env.IMAGE_NAME}:latest
+
+                        docker push \$DOCKERHUB_USERNAME/${env.IMAGE_NAME}:latest
+
+                        docker logout
+                    """
+                }
             }
         }
     }
