@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent none
 
     environment {
         SONAR_SERVER = 'sonarqube-server'
@@ -8,6 +8,7 @@ pipeline {
 
     stages {
         stage('Get Source') {
+            agent any
             steps {
                 checkout scm
             }
@@ -44,7 +45,7 @@ pipeline {
                                 -Dsonar.projectName=${env.REPO_NAME} \
                                 -Dsonar.sources=src/main/java \
                                 -Dsonar.java.binaries=target/classes \
-                                -Dsonar.qualitygate.wait=true
+                                    -Dsonar.qualitygate.wait=true
                             """
                         }
                     }
