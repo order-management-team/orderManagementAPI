@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         SONAR_SERVER = 'sonarqube-server'
-        env.IMAGE_NAME = env.REPO_NAME.toLowerCase()
     }
 
     stages {
@@ -14,7 +13,9 @@ pipeline {
 
                 script {
                     env.REPO_NAME = "${env.GIT_URL.split('/').last().split('\\.').first()}"
+                    env.IMAGE_NAME = env.REPO_NAME.toLowerCase()
                     echo "Repositorio detectado: ${env.REPO_NAME}"
+                    echo "Nombre de imagen Docker: ${env.IMAGE_NAME}"
                 }
             }
         }
