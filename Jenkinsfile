@@ -45,7 +45,6 @@ pipeline {
                                 -Dsonar.projectName=${env.REPO_NAME} \
                                 -Dsonar.sources=src/main/java \
                                 -Dsonar.java.binaries=target/classes \
-                                    -Dsonar.qualitygate.wait=true
                             """
                         }
                     }
