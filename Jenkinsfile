@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         SONAR_SERVER = 'sonarqube-server'
+        env.IMAGE_NAME = env.REPO_NAME.toLowerCase()
     }
 
     stages {
@@ -29,6 +30,8 @@ pipeline {
                     }
                     steps {
                         sh 'mvn clean package -DskipTests'
+
+                        stash name: 'app-jar', includes: 'target/*.jar'
                     }
                 }
 
@@ -53,6 +56,19 @@ pipeline {
                         }
                     }
                 }
+            }
+        }
+
+        stage('Docker Build') {
+            agent any
+            steps {
+                checkout scm
+
+                unstash 'app-jar'
+
+                sh """
+                    docker build -t ${env.IMAGE_NAME}:latest .
+                """
             }
         }
     }
