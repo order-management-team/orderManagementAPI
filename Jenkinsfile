@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         SONAR_SERVER = 'sonarqube-server'
-        REPO_NAME = "${env.GIT_URL.split('/').last().split('\\.').first()}"
     }
 
     stages {
@@ -11,6 +10,11 @@ pipeline {
             agent any
             steps {
                 checkout scm
+
+                script {
+                    env.REPO_NAME = "${env.GIT_URL.split('/').last().split('\\.').first()}"
+                    echo "Repositorio detectado: ${env.REPO_NAME}"
+                }
             }
         }
 
@@ -44,7 +48,7 @@ pipeline {
                                 -Dsonar.projectKey=${env.REPO_NAME} \
                                 -Dsonar.projectName=${env.REPO_NAME} \
                                 -Dsonar.sources=src/main/java \
-                                -Dsonar.java.binaries=target/classes \
+                                -Dsonar.java.binaries=target/classes
                             """
                         }
                     }
