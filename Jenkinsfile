@@ -8,15 +8,17 @@ pipeline {
     stages {
         stage('Get Source') {
             agent any
+
             steps {
                 checkout scm
 
                 script {
                     env.REPO_NAME = "${env.GIT_URL.split('/').last().split('\\.').first()}"
                     env.IMAGE_NAME = env.REPO_NAME.toLowerCase()
+                    env.DOCKERHUB_IMAGE = "achavezgal/${env.IMAGE_NAME}:latest"
 
                     echo "Repositorio detectado: ${env.REPO_NAME}"
-                    echo "Nombre de imagen Docker: ${env.IMAGE_NAME}"
+                    echo "Imagen Docker a construir y publicar: ${env.DOCKERHUB_IMAGE}"
                 }
             }
         }
@@ -30,6 +32,7 @@ pipeline {
                             args '-e HOME=/tmp'
                         }
                     }
+
                     steps {
                         sh 'mvn clean package -DskipTests'
 
@@ -44,6 +47,7 @@ pipeline {
                             args '-e HOME=/tmp'
                         }
                     }
+
                     steps {
                         withSonarQubeEnv("${env.SONAR_SERVER}") {
                             sh """
@@ -63,19 +67,21 @@ pipeline {
 
         stage('Docker Build') {
             agent any
+
             steps {
                 checkout scm
 
                 unstash 'app-jar'
 
                 sh """
-                    docker build -t ${env.IMAGE_NAME}:latest .
+                    docker build -t ${env.DOCKERHUB_IMAGE} .
                 """
             }
         }
 
         stage('Publish Docker Image') {
             agent any
+
             steps {
                 withCredentials([
                     usernamePassword(
@@ -87,12 +93,17 @@ pipeline {
                     sh """
                         echo "\$DOCKERHUB_TOKEN" | docker login -u "\$DOCKERHUB_USERNAME" --password-stdin
 
-                        docker tag ${env.IMAGE_NAME}:latest \
-                        \$DOCKERHUB_USERNAME/${env.IMAGE_NAME}:latest
-
-                        docker push \$DOCKERHUB_USERNAME/${env.IMAGE_NAME}:latest
+                        docker push ${env.DOCKERHUB_IMAGE}
 
                         docker logout
+                    """
+                }
+            }
+
+            post {
+                always {
+                    sh """
+                        docker rmi ${env.DOCKERHUB_IMAGE} || true
                     """
                 }
             }
