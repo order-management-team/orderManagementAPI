@@ -19,6 +19,7 @@ pipeline {
                     agent {
                         docker {
                             image 'maven:3.9.15-eclipse-temurin-21'
+                            args '-e HOME=/tmp'
                         }
                     }
                     steps {
@@ -30,6 +31,7 @@ pipeline {
                     agent {
                         docker {
                             image 'maven:3.9.15-eclipse-temurin-21'
+                            args '-e HOME=/tmp'
                         }
                     }
                     steps {
